@@ -1,0 +1,98 @@
+https://leetcode.com/problems/pacific-atlantic-water-flow/
+
+class Solution {
+private:
+	map<pair<int, int>, char> atlantic;
+	map<pair<int, int>, char> pacific;
+	int m, n;
+	const vector<pair<int, int>> dirs = { {1,0}, {0, 1}, {-1, 0}, {0, -1} };
+public:
+	vector<vector<int>> pacificAtlantic(vector<vector<int>>& matrix) 
+	{
+		m = matrix.size();
+		if(m == 0)
+		{
+			return {};
+		}
+		n = matrix[0].size();
+		stack<pair<int,int>> stack;
+		for (int i = 0; i < n; ++i)
+		{
+			pacific[{ 0, i }] = 1;
+			stack.push({ 0, i });
+		}
+		for (int i = 1; i < m; ++i)
+		{
+			pacific[{ i, 0 }] = 1;
+			stack.push({ i, 0 });
+		}
+		while (!stack.empty())
+		{
+			pair<int, int> top = stack.top();
+			stack.pop();
+			auto avaible = getHigherOrEqual(top.first, top.second, matrix);
+			for (pair<int, int> value : avaible)
+			{
+				if(pacific[value] == 0)
+				{
+					pacific[value] = 1;
+					stack.push(value);
+				}
+			}
+		}
+
+		for (int i = 0; i < n; ++i)
+		{
+			atlantic[{ m - 1, i }] = 1;
+			stack.push({ m-1, i });
+		}
+		for (int i = 0; i < m - 1; ++i)
+		{
+			atlantic[{ i, n - 1 }] = 1;
+			stack.push({ i, n-1 });
+		}
+		while (!stack.empty())
+		{
+			pair<int, int> top = stack.top();
+			stack.pop();
+			auto avaible = getHigherOrEqual(top.first, top.second, matrix);
+			for (pair<int, int> value : avaible)
+			{
+				if (atlantic[value] == 0)
+				{
+					atlantic[value] = 1;
+					stack.push(value);
+				}
+			}
+		}
+
+
+		vector<vector<int>> res;
+		for (auto keyval : pacific)
+		{
+			if(keyval.second == 1 && atlantic[keyval.first] == 1)
+			{
+				res.push_back({keyval.first.first, keyval.first.second });
+			}
+		}
+		return res;
+	}
+
+	vector<pair<int,int>> getHigherOrEqual(int x, int y, vector<vector<int>>& matrix)
+	{
+		vector<pair<int, int>> pairs;
+		for (const pair<int, int> dir : dirs)
+		{
+			int newX = x + dir.first;
+			int newY = y + dir.second;
+			if(newX > -1 && newY > -1 && newX < m && newY < n)
+			{
+				if(matrix[newX][newY] >= matrix[x][y])
+				{
+					pairs.push_back({ newX, newY });
+				}
+			}
+		}
+		return pairs;
+	}
+};

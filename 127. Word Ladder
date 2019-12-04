@@ -1,0 +1,78 @@
+https://leetcode.com/problems/word-ladder/
+
+class Node
+{
+public:
+	const string& word;
+	vector<Node*> linked;
+	Node(const string& word):word(word)
+	{
+	}
+	bool shouldLink(Node* node) {
+		int d = 0;
+		for (int i = 0; i < node->word.size(); i++)
+		{
+			if (node->word[i] != word[i]) {
+				if (d == 0) {
+					d = 1;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+};
+
+class Solution {
+public:
+	int ladderLength(string beginWord, string endWord, vector<string>& wordList) {
+		wordList.insert(wordList.begin(), beginWord);
+		vector<Node*> nodes(wordList.size());
+		for (size_t i = 0; i < wordList.size(); i++)
+		{
+			nodes[i] = new Node(wordList[i]);
+		}
+		for (size_t i = 0; i < wordList.size()-1; i++)
+		{
+			for (size_t j = i+1; j < wordList.size(); j++)
+			{
+				if (nodes[i]->shouldLink(nodes[j])) {
+					nodes[i]->linked.push_back(nodes[j]);
+					nodes[j]->linked.push_back(nodes[i]);
+				}
+			}
+		}
+		set<Node*> checked;
+		queue<Node*>* newV = new queue<Node*>;
+		queue<Node*>* oldV = new queue<Node*>;
+		oldV->push(*nodes.begin());
+		checked.insert(*nodes.begin());
+		int counter = 2;
+		while (!oldV->empty())
+		{
+			while (!oldV->empty())
+			{
+				Node* top = oldV->front();
+				oldV->pop();
+				for (auto l : top->linked) {
+					if (l->word == endWord)
+					{
+						return counter;
+					}
+					if (!checked.count(l)) {
+						checked.insert(l);
+						newV->push(l);
+					}
+				}
+			}
+			queue<Node*>* temp = oldV;
+			oldV = newV;
+			newV = temp;
+			counter++;
+		}
+		return 0;
+	}
+};

@@ -1,0 +1,32 @@
+https://leetcode.com/problems/ugly-number-ii/
+
+class Solution {
+public:
+	int nthUglyNumber(int n) {
+		priority_queue<long int, vector<long int>, greater<>> queue;
+		unordered_set<long int> visited;
+
+		queue.push(1);
+		n--;
+
+		while (n) {
+			long int top = queue.top();
+			queue.pop();
+			if (visited.count(top)) {
+				continue;
+			}
+			n--;
+
+			queue.push(top * 2);
+			queue.push(top * 3);
+			queue.push(top * 5);
+			visited.insert(top);
+
+		}
+		while (visited.count(queue.top()))
+		{
+			queue.pop();
+		}
+		return queue.top();
+	}
+};

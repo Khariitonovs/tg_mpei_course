@@ -1,0 +1,88 @@
+https://leetcode.com/problems/design-twitter/
+
+class Twitter {
+private:
+	struct Tweet {
+		int id;
+		int timestamp;
+
+		Tweet(int inId, int inTimeStamp) : id{ inId }, timestamp{ inTimeStamp } {}
+	};
+	struct TweetCmp {
+		bool operator()(const Tweet& lhs, const Tweet& rhs) {
+			return lhs.timestamp < rhs.timestamp;
+		}
+	};
+	struct User {
+		int id;
+		set<int> followeeIds;
+		priority_queue<Tweet, vector<Tweet>, TweetCmp> tweets;
+		User(int inId = 0) : id{ inId } {}
+	};
+
+	int time = 0;
+	map<int, User> allUsers;
+public:
+	Twitter() {
+		time = 0;
+	}
+
+	void postTweet(int userId, int tweetId) {
+		if (allUsers.find(userId) == allUsers.end()) {
+			allUsers.insert({ userId, User{userId} });
+		}
+		auto& user = allUsers[userId];
+		user.tweets.push({ tweetId, ++time });
+	}
+	void pushTweets(priority_queue<Tweet, vector<Tweet>, TweetCmp>& from, priority_queue<Tweet, vector<Tweet>, TweetCmp>& to, int k)
+	{
+		stack<Tweet> stack;
+		for (int i = 0; i < k && !from.empty(); ++i)
+		{
+			Tweet item = from.top();
+			from.pop();
+			to.push(item);
+			stack.push(item);
+		}
+		while (!stack.empty())
+		{
+			Tweet item = stack.top();
+			stack.pop();
+			from.push(item);
+		}
+	}
+	vector<int> getNewsFeed(int userId) {
+		priority_queue<Tweet, vector<Tweet>, TweetCmp> q(TweetCmp{});
+		auto user = allUsers[userId];
+		pushTweets(user.tweets, q, 10);
+
+		for (auto& followeeId : user.followeeIds) {
+			auto followee = allUsers[followeeId];
+			pushTweets(followee.tweets, q, 10);
+		}
+
+		vector<int> result;
+		for (int i = 0; i < 10; i++) {
+			if (q.empty()) {
+				break;
+			}
+			else {
+				result.push_back(q.top().id);
+				q.pop();
+			}
+		}
+
+		return result;
+	}
+
+	void follow(int followerId, int followeeId) {
+		if (followerId != followeeId) {
+			allUsers[followerId].followeeIds.insert(followeeId);
+		}
+	}
+
+
+	void unfollow(int followerId, int followeeId) {
+		allUsers[followerId].followeeIds.erase(followeeId);
+	}
+};

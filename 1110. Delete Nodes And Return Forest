@@ -1,0 +1,37 @@
+https://leetcode.com/problems/delete-nodes-and-return-forest/
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    vector<TreeNode*> res;
+    
+    TreeNode* helper(TreeNode* root, vector<int>& to_delete,bool is_root){
+        if(root){
+            if(is_root && count(to_delete.begin(),to_delete.end(),root->val) == 0 )
+                res.push_back(root);
+            root->left = helper(root->left,  to_delete, !(count(to_delete.begin(),to_delete.end(),root->val) == 0));
+            root->right =  helper(root->right, to_delete, !(count(to_delete.begin(),to_delete.end(),root->val) == 0));
+            
+            if(count(to_delete.begin(),to_delete.end(),root->val) == 0 )
+                return root;
+            
+                
+        }
+        return NULL;
+    }
+    
+    
+    vector<TreeNode*> delNodes(TreeNode* root, vector<int>& to_delete) {
+        helper(root,to_delete,true);
+        return res;
+        
+    }
+};

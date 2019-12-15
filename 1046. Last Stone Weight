@@ -1,0 +1,25 @@
+https://leetcode.com/problems/last-stone-weight/
+
+class Solution {
+public:
+	int lastStoneWeight(vector<int>& stones) {
+		priority_queue<int> queue;
+		for (int n : stones) {
+			queue.push(n);
+		}
+		while (!queue.empty())
+		{
+			const int s1 = queue.top();
+			queue.pop();
+			if(queue.empty())
+			{
+				return s1;
+			}
+
+			int s2 = queue.top();
+			queue.pop();
+			queue.push(abs(s1 - s2));
+		}
+		return 0;
+	}
+};
